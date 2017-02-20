@@ -361,6 +361,7 @@ The model will emit **input** event automatically while the **value** had been a
 >ValueModel.el
 >ValueModel.name
 >ValueModel.value
+
 #### ValueModel.prototype.addListener()
 #### Syntax
 ```javascript
@@ -372,6 +373,7 @@ model.addListener(handler);
 model.delListener(handler);
 ```
 #### ValueModel.prototype.bindTo()
+
 #### Syntax
 ```javascript
 model.bindTo(htmlElement);

@@ -1,0 +1,35 @@
+{
+  "name": "dsxsjs",
+  "version": "1.0.0",
+  "description": "dsxs.js",
+  "main": "webpack.config.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ssh://gitlab@gitlab.winas.jp:1022/Shih/dsxs.js.git"
+  },
+  "devDependencies":{
+      "gulp-concat": "^2.6.0",
+      "gulp-connect": "^4.0.0",
+      "gulp-ect": "^1.3.1",
+      "gulp-webpack": "^1.5.0",
+      "gulp-watch": "^4.3.5"
+  },
+  "scripts": {
+      "build:js":"webpack",
+      "build:template":"cat ./src/layouts/templates/*.html > ./src/layouts/alltmp.html",
+      "build:html":"ejs-cli ./src/index.html > ./build/index.html",
+      "build": "npm run build:template && npm run build:html && npm run build:js",
+
+      "deploy": "npm run build && cp -R ./build/* ./public",
+      "watch": "watch \"npm run deploy\" .",
+      "serve": "browser-sync start --server --serveStatic dist --files '**/*.css, **/*.js, **/*.html'",
+      "start": "npm run serve & npm run watch"
+
+
+  },
+  "author": "dsxs",
+  "license": "MIT"
+}

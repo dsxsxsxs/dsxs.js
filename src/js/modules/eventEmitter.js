@@ -1,5 +1,4 @@
 
-+function(){
     var taskQueue = [];
     window.addEventListener('message', function (ev) {
         var source = ev.source;
@@ -60,5 +59,5 @@
             listener.apply(this, arguments);
         });
     };
-    window.EventEmitter=EventEmitter;
-}.call(this);
+    // window.EventEmitter=EventEmitter;
+    module.exports=EventEmitter;

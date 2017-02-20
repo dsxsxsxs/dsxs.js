@@ -1,5 +1,4 @@
 
-+function(){
     JSON.safeParse=function(s, cb){
         try {
             return this.parse(s);
@@ -290,6 +289,5 @@
     Util.prototype.bindNamedAttribute=bindNamedAttribute;
     Util.prototype.log=console.log;
 
-    window.util=new Util;
-
-}.call(this);
+    // window.util=new Util;
+    module.exports=new Util;
