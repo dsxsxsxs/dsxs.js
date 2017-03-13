@@ -1,4 +1,5 @@
 module.exports={
-    util: require('util.js'),
-    ev: require('EventEmitter')
+    util: require('./modules/util.js'),
+    ev: require('./modules/EventEmitter'),
+    container: require('./modules/container')
 };

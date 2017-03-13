@@ -1,144 +1,122 @@
-/******/ (function(modules) { // webpackBootstrap
-/******/ 	// The module cache
-/******/ 	var installedModules = {};
+!function(e){if("object"==typeof exports)module.exports=e();else if("function"==typeof define&&define.amd)define(e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.dsxs=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
+module.exports={
+    util: _dereq_('./modules/util.js'),
+    ev: _dereq_('./modules/EventEmitter'),
+    container: _dereq_('./modules/container')
+};
 
-/******/ 	// The require function
-/******/ 	function __webpack_require__(moduleId) {
+},{"./modules/EventEmitter":2,"./modules/container":3,"./modules/util.js":4}],2:[function(_dereq_,module,exports){
+var EventEmitter = function () {
+    this._events = {};
+};
 
-/******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId])
-/******/ 			return installedModules[moduleId].exports;
+EventEmitter.prototype.on = function (ev, listener) {
+    if (typeof this._events[ev] !== 'object')
+        this._events[ev] = [];
+        this._events[ev].push(listener);
+};
 
-/******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = installedModules[moduleId] = {
-/******/ 			i: moduleId,
-/******/ 			l: false,
-/******/ 			exports: {}
-/******/ 		};
+EventEmitter.prototype.off = function (ev, listener) {
+    if (typeof this._events[ev] === 'object') {
+        var idx = this._events[ev].indexOf(listener);
+        if (idx > -1)
+            this._events[ev].splice(idx, 1);
+    }
+};
 
-/******/ 		// Execute the module function
-/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-
-/******/ 		// Flag the module as loaded
-/******/ 		module.l = true;
-
-/******/ 		// Return the exports of the module
-/******/ 		return module.exports;
-/******/ 	}
-
-
-/******/ 	// expose the modules object (__webpack_modules__)
-/******/ 	__webpack_require__.m = modules;
-
-/******/ 	// expose the module cache
-/******/ 	__webpack_require__.c = installedModules;
-
-/******/ 	// identity function for calling harmony imports with the correct context
-/******/ 	__webpack_require__.i = function(value) { return value; };
-
-/******/ 	// define getter function for harmony exports
-/******/ 	__webpack_require__.d = function(exports, name, getter) {
-/******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, {
-/******/ 				configurable: false,
-/******/ 				enumerable: true,
-/******/ 				get: getter
-/******/ 			});
-/******/ 		}
-/******/ 	};
-
-/******/ 	// getDefaultExport function for compatibility with non-harmony modules
-/******/ 	__webpack_require__.n = function(module) {
-/******/ 		var getter = module && module.__esModule ?
-/******/ 			function getDefault() { return module['default']; } :
-/******/ 			function getModuleExports() { return module; };
-/******/ 		__webpack_require__.d(getter, 'a', getter);
-/******/ 		return getter;
-/******/ 	};
-
-/******/ 	// Object.prototype.hasOwnProperty.call
-/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
-
-/******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "";
-
-/******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 2);
-/******/ })
-/************************************************************************/
-/******/ ([
-/* 0 */
-/***/ (function(module, exports) {
-
-
-    var taskQueue = [];
-    window.addEventListener('message', function (ev) {
-        var source = ev.source;
-        if ((source === window || source === null) && ev.data === 'process-tick') {
-            ev.stopPropagation();
-            if (taskQueue.length > 0) {
-                var fn = taskQueue.shift();
-                fn();
-            }
+EventEmitter.prototype.emit = function (ev) {
+    var i, listeners, length, args = Array.prototype.slice.call(arguments, 1);
+    if (typeof this._events[ev] === 'object') {
+        listeners = this._events[ev].slice();
+        length = listeners.length;
+        // nextTick(function(){
+        for (i = 0; i < length; i++) {
+            listeners[i].apply(this, args);
         }
-    }, true);
-    var nextTick=function (fn) {
-        taskQueue.push(fn);
-        window.postMessage('process-tick', '*');
-    };
-    window.nextTick=nextTick;
-    var EventEmitter = function () {
-        this.events = {};
-    };
+        // }.bind(this));
+    }
+};
 
-    EventEmitter.prototype.on = function (event, listener) {
-        if (typeof this.events[event] !== 'object') {
-            this.events[event] = [];
+EventEmitter.prototype.once = function (ev, listener) {
+    this.on(ev, function g () {
+        this.off(ev, g);
+        listener.apply(this, arguments);
+    });
+};
+// window.EventEmitter=EventEmitter;
+module.exports=EventEmitter;
+
+},{}],3:[function(_dereq_,module,exports){
+var _module={};
+function VM(arg){
+	var ctx= function(fn){
+        return new Function('return function (arg){with(arg){('+fn+')()}};')();
+    }
+    return {
+        run:function(fn){
+            return ctx(fn)(arg);
         }
+    }
 
-        this.events[event].push(listener);
-    };
+}
+function Container(){
+}
+Container.prototype.VM=VM;
+Container.prototype.singleton=function(fname, proto,args){
+    var proto={};
+    ctx.call(proto);
+    var cls=proto.constructor;
+    proto.constructor=cls;
+    cls.prototype=proto;
+    if (args)
+        args.unshift(null);
+    _module[fname]= {instance:new (Function.prototype.bind.apply(cls, args))};
+    return this;
+};
+Container.prototype.define=function(fname, ctx){
+    var proto={};
+    ctx.call(proto);
+    var cls=proto.constructor;
+    proto.constructor=cls;
+    cls.prototype=proto;
+    _module[fname]= {class:cls};
+    return this;
+}
+Container.prototype.instantiate=function(fname, fn,args){
+    var cls=_module[fname].class;
+    args.unshift(null);
+    if (cls)
+        fn.call(this, new (Function.prototype.bind.apply(cls, args)))
+    return this;
+}
+Container.prototype.factory=function(fname, fn){
+    _module[fname]={instance:fn.call(this)};
+    return this;
+}
+Container.prototype.inject=function(fname, fn){
+    // Util.prototype.fname= new (Function.prototype.bind.apply(Something, [null, a, b, c]));
+    if (fname instanceof Array)
+        fn.apply(this, fname.map(function(_fname){
+            return _module[_fname].class? _module[_fname].class:_module[_fname].instance;
+        }));
+    else fn.call(this, _module[fname].class? _module[fname].class:_module[fname].instance);
+    return this;
+}
+Container.prototype.with=function(fname, fn){
+    // Util.prototype.fname= new (Function.prototype.bind.apply(Something, [null, a, b, c]));
+    if (!(fname instanceof Array))
+        fname=[fname];
+    var toWith={};
+    fname.forEach(function(_fname){
+        if (_module[_fname] && _module[_fname].class)
+            this[_fname]=_module[_fname].class;
+    },toWith);
+    VM(toWith).run(fn);
+    return this;
+}
+module.exports=Container;
 
-    EventEmitter.prototype.off = function (event, listener) {
-        var idx;
-
-        if (typeof this.events[event] === 'object') {
-            idx = this.events[event].indexOf(listener);
-
-            if (idx > -1) {
-                this.events[event].splice(idx, 1);
-            }
-        }
-    };
-
-    EventEmitter.prototype.emit = function (event) {
-        var i, listeners, length, args = [].slice.call(arguments, 1);
-
-        if (typeof this.events[event] === 'object') {
-            listeners = this.events[event].slice();
-            length = listeners.length;
-            nextTick(function(){
-                for (i = 0; i < length; i++) {
-                    listeners[i].apply(this, args);
-                }
-            }.bind(this));
-        }
-    };
-
-    EventEmitter.prototype.once = function (event, listener) {
-        this.on(event, function g () {
-            this.off(event, g);
-            listener.apply(this, arguments);
-        });
-    };
-    // window.EventEmitter=EventEmitter;
-    module.exports=EventEmitter;
-
-
-/***/ }),
-/* 1 */
-/***/ (function(module, exports) {
-
+},{}],4:[function(_dereq_,module,exports){
 
     JSON.safeParse=function(s, cb){
         try {
@@ -156,6 +134,21 @@
         z = z || '0';
         return (this+'').pad(width, z);
     }
+    var taskQueue = [];
+    window.addEventListener('message', function (ev) {
+        var source = ev.source;
+        if ((source === window || source === null) && ev.data === 'process-tick') {
+            ev.stopPropagation();
+            if (taskQueue.length > 0) {
+                var fn = taskQueue.shift();
+                fn();
+            }
+        }
+    }, true);
+    var nextTick=function (fn) {
+        taskQueue.push(fn);
+        window.postMessage('process-tick', '*');
+    };
     function bindAttribute(obj,key, attr, el) {
       Object.defineProperty(obj, key, {
         get: function() { return el.getAttribute(attr); },
@@ -274,11 +267,21 @@
     }
     CustomDomElement.prototype.once=function(ev, handler, useCapture){
         this.each(function(el){
-            var selfRemovable=function(){
+            el.addEventListener(ev,function g(){
                 handler.apply(el,arguments);
-                el.removeEventListener(ev, selfRemovable);
-            };
-            el.addEventListener(ev,selfRemovable, useCapture);
+                el.removeEventListener(ev, g);
+            }, useCapture);
+        });
+    }
+    CustomDomElement.delegate=function(ev,selector,handler){
+        this.each(function(el){
+            el.addEventListener(ev,function(e){
+                nativeEach.call(this.querySelectorAll(selector), function(_el){
+                    e.currentDelegateTarget=_el;
+                    e.delegateTarget=this;
+                    handler.call(_el, e);
+                },this)
+            });
         });
     }
     CustomDomElement.prototype.emit=function(ev){
@@ -358,29 +361,11 @@
         return this;
     }
     CustomDomElement.prototype.trigger=CustomDomElement.prototype.emit;
-    var _module={};
+
     var Util=function(){
 
     };
-    Util.prototype.singleton={};
-    Util.prototype.singleton.define=function(fname, cls){
-        // Util.prototype.fname= new (Function.prototype.bind.apply(Something, [null, a, b, c]));
-        _module[fname]= new cls;
-        return this;
-    }
-    Util.prototype.singleton.factory=function(fname, fn){
-        _module[fname]=fn.call(window.util);
-        return this;
-    }
-    Util.prototype.singleton.inject=function(fname, fn){
-        // Util.prototype.fname= new (Function.prototype.bind.apply(Something, [null, a, b, c]));
-        if (fname instanceof Array)
-            fn.apply(window.util, fname.map(function(_fname){
-                return _module[_fname];
-            }));
-        else fn.call(window.util, _module[fname]);
-        return this;
-    }
+
     Util.prototype.inherit=function(Child, Parent){
         Child.prototype=Object.create(Parent.prototype);
         Child.prototype.constructor=Child;
@@ -420,6 +405,8 @@
     Util.prototype.parseHTML=function(html){
         return new CustomDomElement(html);
     }
+
+    Util.prototype.nextTick=nextTick;
     Util.prototype.CustomDomElement=CustomDomElement;
     Util.prototype.wrap=Util.prototype.parseHTML;
     Util.prototype.ValueModel=ValueModel;
@@ -430,19 +417,8 @@
     Util.prototype.bindNamedAttribute=bindNamedAttribute;
     Util.prototype.log=console.log;
 
-    // window.util=new Util;
-    module.exports=new Util;
+    module.exports=Util;
 
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports={
-    util: __webpack_require__(1),
-    ev: __webpack_require__(0)
-};
-
-
-/***/ })
-/******/ ]);
+},{}]},{},[1])
+(1)
+});

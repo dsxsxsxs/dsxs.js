@@ -1,63 +1,39 @@
+var EventEmitter = function () {
+    this._events = {};
+};
 
-    var taskQueue = [];
-    window.addEventListener('message', function (ev) {
-        var source = ev.source;
-        if ((source === window || source === null) && ev.data === 'process-tick') {
-            ev.stopPropagation();
-            if (taskQueue.length > 0) {
-                var fn = taskQueue.shift();
-                fn();
-            }
+EventEmitter.prototype.on = function (ev, listener) {
+    if (typeof this._events[ev] !== 'object')
+        this._events[ev] = [];
+        this._events[ev].push(listener);
+};
+
+EventEmitter.prototype.off = function (ev, listener) {
+    if (typeof this._events[ev] === 'object') {
+        var idx = this._events[ev].indexOf(listener);
+        if (idx > -1)
+            this._events[ev].splice(idx, 1);
+    }
+};
+
+EventEmitter.prototype.emit = function (ev) {
+    var i, listeners, length, args = Array.prototype.slice.call(arguments, 1);
+    if (typeof this._events[ev] === 'object') {
+        listeners = this._events[ev].slice();
+        length = listeners.length;
+        // nextTick(function(){
+        for (i = 0; i < length; i++) {
+            listeners[i].apply(this, args);
         }
-    }, true);
-    var nextTick=function (fn) {
-        taskQueue.push(fn);
-        window.postMessage('process-tick', '*');
-    };
-    window.nextTick=nextTick;
-    var EventEmitter = function () {
-        this.events = {};
-    };
+        // }.bind(this));
+    }
+};
 
-    EventEmitter.prototype.on = function (event, listener) {
-        if (typeof this.events[event] !== 'object') {
-            this.events[event] = [];
-        }
-
-        this.events[event].push(listener);
-    };
-
-    EventEmitter.prototype.off = function (event, listener) {
-        var idx;
-
-        if (typeof this.events[event] === 'object') {
-            idx = this.events[event].indexOf(listener);
-
-            if (idx > -1) {
-                this.events[event].splice(idx, 1);
-            }
-        }
-    };
-
-    EventEmitter.prototype.emit = function (event) {
-        var i, listeners, length, args = [].slice.call(arguments, 1);
-
-        if (typeof this.events[event] === 'object') {
-            listeners = this.events[event].slice();
-            length = listeners.length;
-            nextTick(function(){
-                for (i = 0; i < length; i++) {
-                    listeners[i].apply(this, args);
-                }
-            }.bind(this));
-        }
-    };
-
-    EventEmitter.prototype.once = function (event, listener) {
-        this.on(event, function g () {
-            this.off(event, g);
-            listener.apply(this, arguments);
-        });
-    };
-    // window.EventEmitter=EventEmitter;
-    module.exports=EventEmitter;
+EventEmitter.prototype.once = function (ev, listener) {
+    this.on(ev, function g () {
+        this.off(ev, g);
+        listener.apply(this, arguments);
+    });
+};
+// window.EventEmitter=EventEmitter;
+module.exports=EventEmitter;
