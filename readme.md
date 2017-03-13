@@ -47,52 +47,135 @@ num.pad(3, 0);
 //return "0x22"
 ```
 
-## Singleton Module
-### util.singleton.define()
+## Application Container
+```javascript
+var app =new Container;
+```
+### Container.prototype.define()
+This method defines a class and stores into the container.
 #### Syntax
 ```javascript
-util.singleton.define(name, constructor)
+.define(name, initializer)
 ```
 #### Example
 ```javascript
-util.singleton.define("ThisIsA", function(){
-	var a=1;
+app.define("ThisIsA", function(){
+	this.constructor=function ThisIsA(){
+		var a=1;
+    };
 	this.getA=function(){
-		return a;
+		return this.a;
 	};
 	this.dosomething=function(){
 	};
 });
 ```
-### util.singleton.factory()
+### Container.prototype.instantiate()
+This method instantiate a class from container and inject it to the handler.
 #### Syntax
 ```javascript
-util.singleton.factory(name, function)
+.define(name, function, argumentList)
 ```
 #### Example
 ```javascript
-util.singleton.factory("ThisIsB", function(){
+app.define("ThisIsA", function(){
+	this.constructor=function ThisIsA(opt){
+		var a=opt;
+    };
+	this.getA=function(){
+		return this.a;
+	};
+	this.dosomething=function(){
+	};
+});
+app.instantiate("ThisIsA", function(instanceA){
+	instanceA.getA(); // return 123
+}, [123])
+app.instantiate("ThisIsA", function(instanceA){
+	instanceA.getA(); // return 456
+}, [456])
+
+```
+
+### Container.prototype.singleton()
+This method immediately define-and-instantiate a class and store the instance into the container.
+#### Syntax
+```javascript
+.singleton(name, initializer, argumentList)
+```
+#### Example
+```javascript
+app.singleton("instanceB", function(){
+	this.constructor=function ThisIsB(opt){
+		var b=opt;
+    };
+	this.getB=function(){
+		return this.b || null;
+	};
+	this.dosomething=function(){
+	};
+},[456]);
+app.inject("ThisIsB",function(instanceB){
+	instanceB.getB(); //return 456
+});
+
+```
+### Container.prototype.factory()
+This method assigns whatever the factory function has returned.
+#### Syntax
+```javascript
+.factory(name, function)
+```
+#### Example
+```javascript
+app.factory("ThisIsC", function(){
 	return {
-		b: 2,
+		c: 2,
 		dosomething: function(){
 		};
 	};
 });
 ```
-### util.singleton.inject()
+### Container.prototype.inject()
+The method peforms DI of the container, dependencies are injected into the arguments list of the given function.
 #### Syntax
 ```javascript
-util.singleton.inject(target|targetList, function)
+.inject(target|targetList, function)
 ```
 #### Example
 ```javascript
-util.singleton.inject("ThisIsB", function(ThisIsB){
+app.inject("instanceB", function(instanceB){
 	// dosomething
 });
-util.singleton.inject(["ThisIsA","ThisIsB"], function(ThisIsA, ThisIsB){
+app.inject(["ThisIsA","instanceB", "ThisIsC"], function(ThisIsA, instanceB, ThisIsC){
 	// dosomething
+    var a = new ThisIsA; // ThisIsA is a class
+    a.getA();
+    instanceB.getB(); // instanceB is a class of ThisIsB
+    ThisIsC.c; // ThisIsC is a object given by return value of factory function.
 });
 ```
+### Container.prototype.with()
+A convinient way for performing DI, dependencies will exists in the function scope directly, no need to give symbols for parameter list.
+#### Syntax
+```javascript
+.with(target|targetList, function)
+```
+#### Example
+```javascript
+app.with("instanceB", function(){
+	// dosomething
+    instanceB.getB();
+});
+app.with(["ThisIsA","instanceB", "ThisIsC"], function(){
+	// dosomething
+    var a = new ThisIsA; // ThisIsA is a class
+    a.getA();
+    instanceB.getB(); // instanceB is a class of ThisIsB
+    ThisIsC.c; // ThisIsC is a object given by return value of factory function.
+});
+```
+
 ## Prototypical Inheritance Helpers
 ### util.inherit()
 #### Syntax
@@ -196,6 +279,19 @@ util.select('button').on('click', function(e){
 ```javascript
 util.select('button').once('click', function(e){
 	// handler will be invoked only once.
+});
+```
+### .delegate()
+
+#### Syntax
+```javascript
+.delegate(event, selector, handler);
+```
+#### Example
+```javascript
+util.select('div.button-list').delegate('click', 'button', function(e){
+	console.log(e.delegateTarget); // div.button-list
+    console.log(e.currentDelegateTarget); // current clicked button in div.button-list
 });
 ```
 ### .off()
